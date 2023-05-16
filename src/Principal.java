@@ -8,6 +8,8 @@ import javax.swing.JTextField;
 import javax.swing.text.MaskFormatter;
 import java.awt.Frame;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 import java.text.NumberFormat;
 import javax.swing.text.NumberFormatter;
 
@@ -17,6 +19,7 @@ public class Principal {
 	static Cliente cliente = new Cliente();
 	static Conta conta = new Conta();
 	static int aberto = 1;
+	static List<Conta> contas = new ArrayList<Conta>();
 	
 	public static void abrirConta() {
 		//Declarações para a interface
@@ -64,32 +67,36 @@ public class Principal {
 		String senha1;
 		String senha2;
 		Object[] options = {"Voltar", "Abrir conta"};
-		int abrirconta;
+		int abrirconta = 5;
+		
 		
 		//Início da interface
-		do {
-			abrirconta = JOptionPane.showOptionDialog(
-					frame,
-					componentes,
-					"Abrir conta",
-					JOptionPane.YES_NO_OPTION,
-					JOptionPane.INFORMATION_MESSAGE,
-					null,
-					options,
-					options[1]
-					);
-			
-			//Declarando as senhas como String, já que por padrão vem como char[]
-			senha1 = new String(txtSenha.getPassword());
-			senha2 = new String(txtRepetirSenha.getPassword());
-			if(abrirconta == 1) {
-				conta.setNumero(Integer.parseInt(txtNumero.getText()));
-				conta.setDigito(txtDigito.getText());
-				conta.setSenha(senha1, senha2, 1);
+		while(abrirconta != 0) {
+			do {
+				abrirconta = JOptionPane.showOptionDialog(
+						frame,
+						componentes,
+						"Abrir conta",
+						JOptionPane.YES_NO_OPTION,
+						JOptionPane.INFORMATION_MESSAGE,
+						null,
+						options,
+						options[1]
+						);
+				
+				//Declarando as senhas como String, já que por padrão vem como char[]
+				senha1 = new String(txtSenha.getPassword());
+				senha2 = new String(txtRepetirSenha.getPassword());
+				if(abrirconta == 1) {
+					conta.setNumero(Integer.parseInt(txtNumero.getText()));
+					conta.setDigito(txtDigito.getText());
+					conta.setSenha(senha1, senha2, 1);
+				}
+			} while(abrirconta == 1 && (!(txtDigito.getText().length() == 1) || !(txtDigito.getText().matches("^[0-9]*$")) || !(senha1.equals(senha2)) || !(senha1.matches("(?=^.{8,}$)(?=.*\\d)(?=.*[!@#$%^&*]+)(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$"))));
+			if(abrirconta == 1 && !(!(txtDigito.getText().length() == 1) || !(txtDigito.getText().matches("^[0-9]*$")) || !(senha1.equals(senha2)) || !(senha1.matches("(?=^.{8,}$)(?=.*\\d)(?=.*[!@#$%^&*]+)(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$")))) {
+				contas.add(conta);
+				JOptionPane.showMessageDialog(null, "Conta criada com sucesso!");
 			}
-		} while(abrirconta == 1 && (!(txtDigito.getText().length() == 1) || !(txtDigito.getText().matches("^[0-9]*$")) || !(senha1.equals(senha2)) || !(senha1.matches("(?=^.{8,}$)(?=.*\\d)(?=.*[!@#$%^&*]+)(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$"))));
-		if(!(!(txtDigito.getText().length() == 1) || !(txtDigito.getText().matches("^[0-9]*$")) || !(senha1.equals(senha2)) || !(senha1.matches("(?=^.{8,}$)(?=.*\\d)(?=.*[!@#$%^&*]+)(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$")))) {
-			JOptionPane.showMessageDialog(null, "Conta criada com sucesso!");
 		}
 	}//Validação de dados acima
 	
@@ -381,7 +388,7 @@ public class Principal {
 				senha1 = new String(txtSenha.getPassword());
 				
 				if(login == 1 && conta.getTentativas() < 3 && !senha1.isEmpty()) {
-					if(conta.getSenha(senha1)) {
+					if(conta.checkSenha(senha1)) {
 						menu();
 					}
 				}
@@ -396,10 +403,20 @@ public class Principal {
 		}
 	}
 	
+	public static void mostrarDados() {
+		String mensagem = "";
+		
+		for(Conta conta: contas) {
+			mensagem += "Número: "+conta.getNumero()+"\nDígito: "+conta.getDigito()+"\nSenha: "+conta.getSenha()+"\nSaldo: R$"+conta.getSaldo();
+		}
+		
+		JOptionPane.showMessageDialog(null, mensagem);
+	}
+	
 	public static void main(String[] args) {
 		Frame frame = new Frame();
 		
-		Object[] options = {"Abrir a conta", "Cadastrar o cliente", "Depositar/Sacar", "Sair"};
+		Object[] options = {"Abrir a conta", "Cadastrar o cliente", "Depositar/Sacar", "Mostrar dados cadastrados", "Sair"};
 		do {
 			int inicio = JOptionPane.showOptionDialog(
 					frame,
@@ -422,6 +439,8 @@ public class Principal {
 					login();
 				break;
 				case 3:
+					mostrarDados();
+				case 4:
 					aberto = 0;
 					System.exit(0);
 				break;
