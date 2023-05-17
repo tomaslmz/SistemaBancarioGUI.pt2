@@ -17,11 +17,14 @@ public class Principal {
 	
 	//Declaração de classes externas
 	static Cliente cliente = new Cliente();
-	static Conta conta = new Conta();
 	static int aberto = 1;
-	static List<Conta> contas = new ArrayList<Conta>();
+	static int controleConta = 0;
+	
+	static ArrayList<Conta> contas = new ArrayList<Conta>();
+	static ArrayList<Cliente> clientes = new ArrayList<Cliente>();
 	
 	public static void abrirConta() {
+		
 		//Declarações para a interface
 		Frame frame = new Frame();
 		
@@ -73,6 +76,7 @@ public class Principal {
 		//Início da interface
 		while(abrirconta != 0) {
 			do {
+				Conta conta = new Conta();
 				abrirconta = JOptionPane.showOptionDialog(
 						frame,
 						componentes,
@@ -88,13 +92,14 @@ public class Principal {
 				senha1 = new String(txtSenha.getPassword());
 				senha2 = new String(txtRepetirSenha.getPassword());
 				if(abrirconta == 1) {
+					contas.add(conta);
 					conta.setNumero(Integer.parseInt(txtNumero.getText()));
 					conta.setDigito(txtDigito.getText());
 					conta.setSenha(senha1, senha2, 1);
 				}
 			} while(abrirconta == 1 && (!(txtDigito.getText().length() == 1) || !(txtDigito.getText().matches("^[0-9]*$")) || !(senha1.equals(senha2)) || !(senha1.matches("(?=^.{8,}$)(?=.*\\d)(?=.*[!@#$%^&*]+)(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$"))));
 			if(abrirconta == 1 && !(!(txtDigito.getText().length() == 1) || !(txtDigito.getText().matches("^[0-9]*$")) || !(senha1.equals(senha2)) || !(senha1.matches("(?=^.{8,}$)(?=.*\\d)(?=.*[!@#$%^&*]+)(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$")))) {
-				contas.add(conta);
+				controleConta++;
 				JOptionPane.showMessageDialog(null, "Conta criada com sucesso!");
 			}
 		}
@@ -179,7 +184,7 @@ public class Principal {
 		componentes.setLayout(new BoxLayout(componentes, BoxLayout.Y_AXIS));
 		
 		//Validação para evitar que a pessoa declare um cliente sem abrir conta antes
-		if(!conta.getNumero().equals("-1")) {
+		if(!contas.get(controleConta).getNumero().equals("-1")) {
 			//Início da interface
 			do {
 				registro = JOptionPane.showOptionDialog(
@@ -211,7 +216,7 @@ public class Principal {
 			}
 			
 			//Vinculando o cliente à conta
-			conta.setTitular(cliente);
+			//conta.setTitular(cliente);
 		} else {
 			JOptionPane.showMessageDialog(null, "Você precisa abrir uma conta primeiro!");
 			//Mensagem de erro
@@ -232,8 +237,8 @@ public class Principal {
 		Object[] options = {"Sair", "Depositar"};
 		
 		JPanel componentes = new JPanel();
-		JLabel texto = new JLabel("Saldo: R$" + conta.getSaldo());
-		JLabel texto2 = new JLabel("Limite: R$" + conta.getLimite());
+		JLabel texto = new JLabel("Saldo: R$" + contas.get(controleConta).getSaldo());
+		JLabel texto2 = new JLabel("Limite: R$" + contas.get(controleConta).getLimite());
 		JLabel linha = new JLabel(" ");
 		
 		componentes.add(texto);
@@ -248,7 +253,7 @@ public class Principal {
 		while(deposito != 0) {
 			do {
 				if (deposito != 3) {
-				    texto.setText("Saldo: R$" + conta.getSaldo()); // Atualiza o texto do componente com o novo saldo
+				    texto.setText("Saldo: R$" + contas.get(controleConta).getSaldo()); // Atualiza o texto do componente com o novo saldo
 				}
 				txtSaldo.setText("");
 				
@@ -267,7 +272,7 @@ public class Principal {
 					txtSaldo.setText("0");
 				}
 				if(deposito == 1) {
-					conta.setSaldo(3, Double.parseDouble(txtSaldo.getText()));
+					contas.get(controleConta).setSaldo(3, Double.parseDouble(txtSaldo.getText()));
 				}
 			} while(deposito == 1 && !(Double.parseDouble(txtSaldo.getText()) > 0));
 		}
@@ -276,8 +281,8 @@ public class Principal {
 	public static void sacar() {
 		Frame frame = new Frame();
 		
-		JLabel texto = new JLabel("Saldo: R$" + conta.getSaldo());
-		JLabel texto2 = new JLabel("Limite: R$" + conta.getLimite());
+		JLabel texto = new JLabel("Saldo: R$" + contas.get(controleConta).getSaldo());
+		JLabel texto2 = new JLabel("Limite: R$" + contas.get(controleConta).getLimite());
 		JLabel linha = new JLabel(" ");
 		JLabel lbSaque = new JLabel("Digite o quanto deseja sacar: ");
 		JTextField txtSaque = new JTextField();
@@ -312,14 +317,14 @@ public class Principal {
 				}
 				
 				if(saque == 1) {
-					conta.setSaldo(2, Double.parseDouble(txtSaque.getText()));
-					texto.setText("Saldo: R$" + conta.getSaldo());
-					texto2.setText("Limite: R$" + conta.getLimite());
+					contas.get(0).setSaldo(2, Double.parseDouble(txtSaque.getText()));
+					texto.setText("Saldo: R$" + contas.get(0).getSaldo());
+					texto2.setText("Limite: R$" + contas.get(0).getLimite());
 				}
 				
 				
 
-			} while(saque == 1 && (!(conta.getSaldo() >= Double.parseDouble(txtSaque.getText())) || !(conta.getSaldo() < Double.parseDouble(txtSaque.getText()) && conta.getSaldo()+conta.getLimite() >= Double.parseDouble(txtSaque.getText()))));
+			} while(saque == 1 && (!(contas.get(0).getSaldo() >= Double.parseDouble(txtSaque.getText())) || !(contas.get(0).getSaldo() < Double.parseDouble(txtSaque.getText()) && contas.get(0).getSaldo()+contas.get(0).getLimite() >= Double.parseDouble(txtSaque.getText()))));
 		
 		}
 	}
@@ -334,7 +339,7 @@ public class Principal {
 		while(escolher != 2) {
 			escolher = JOptionPane.showOptionDialog(
 					frame,
-					"Olá, " + cliente.getNome() + " (" + conta.getNumero() + ")" + ". Seja bem-vindo!\nR$" + conta.getSaldo() + "\nEscolha a função que deseja:\n",
+					"Olá, " + cliente.getNome() + " (" + contas.get(controleConta).getNumero() + ")" + ". Seja bem-vindo!\nR$" + contas.get(controleConta).getSaldo() + "\nEscolha a função que deseja:\n",
 					"Escolha",
 					JOptionPane.YES_NO_OPTION,
 					JOptionPane.INFORMATION_MESSAGE,
@@ -373,7 +378,7 @@ public class Principal {
 		
 		String senha1;
 		
-		if(!conta.getNumero().equals("-1") && cliente.getCodigo() != -1) {
+		if(!contas.get(controleConta).getNumero().equals("-1") && cliente.getCodigo() != -1) {
 			do {
 				login = JOptionPane.showOptionDialog(
 						frame,
@@ -387,16 +392,16 @@ public class Principal {
 				
 				senha1 = new String(txtSenha.getPassword());
 				
-				if(login == 1 && conta.getTentativas() < 3 && !senha1.isEmpty()) {
-					if(conta.checkSenha(senha1)) {
+				if(login == 1 && contas.get(controleConta).getTentativas() < 3 && !senha1.isEmpty()) {
+					if(contas.get(controleConta).checkSenha(senha1)) {
 						menu();
 					}
 				}
-			} while(login == 1 && !(senha1.matches("(?=^.{8,}$)(?=.*\\d)(?=.*[!@#$%^&*]+)(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$")) && conta.getTentativas() < 3);
+			} while(login == 1 && !(senha1.matches("(?=^.{8,}$)(?=.*\\d)(?=.*[!@#$%^&*]+)(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$")) && contas.get(controleConta).getTentativas() < 3);
 			
-			if(conta.getTentativas() == 3) {
+			if(contas.get(controleConta).getTentativas() == 3) {
 				JOptionPane.showMessageDialog(null, "Excedeu o limite de tentativas!");
-				conta.setTentativas(0);
+				contas.get(controleConta).setTentativas(0);
 			}
 		} else {
 			JOptionPane.showMessageDialog(null, "Você precisa abrir uma conta e registrar cliente primeiro!");
@@ -407,8 +412,12 @@ public class Principal {
 		String mensagem = "";
 		
 		for(Conta conta: contas) {
-			mensagem += "Número: "+conta.getNumero()+"\nDígito: "+conta.getDigito()+"\nSenha: "+conta.getSenha()+"\nSaldo: R$"+conta.getSaldo();
+			mensagem += "Número: "+conta.getNumero()+"\nDígito: "+conta.getDigito()+"\nSenha: "+conta.getSenha()+"\nSaldo: R$"+conta.getSaldo() + "\n";
 		}
+		
+		/*for(int i = 0; i<contas.size(); i++) {
+			mensagem += "Número: "+conta.getNumero()+"\nDígito: "+conta.getDigito()+"\nSenha: "+conta.getSenha()+"\nSaldo: R$"+conta.getSaldo() + "\n";
+		}*/
 		
 		JOptionPane.showMessageDialog(null, mensagem);
 	}
