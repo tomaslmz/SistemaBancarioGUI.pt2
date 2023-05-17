@@ -67,14 +67,11 @@ public class Conta {
 		return tentativas;
 	}
 	
-	public boolean checkSenha(String senha) {
-		if(this.senha.matches(senha) && tentativas < 3) {
-			JOptionPane.showMessageDialog(null, "\nLogin com sucesso!");
+	public boolean checkLogin(String senha, String Cpf) {
+		if(this.senha.matches(senha) && tentativas < 3 && Cpf.equals(titular.getCpf())) {
 			return true;
-		} else {
-			tentativas++;
-			return false;
 		}
+		return false;
 	}
 	
 	public String getSenha() {

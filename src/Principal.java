@@ -15,95 +15,13 @@ import javax.swing.text.NumberFormatter;
 
 public class Principal {
 	
-	//Declaração de classes externas
-	static Cliente cliente = new Cliente();
 	static int aberto = 1;
-	static int controleConta = 0;
+	static int controle = 0;
+	static int identificador = 0;
 	
 	static ArrayList<Conta> contas = new ArrayList<Conta>();
 	static ArrayList<Cliente> clientes = new ArrayList<Cliente>();
 	
-	public static void abrirConta() {
-		
-		//Declarações para a interface
-		Frame frame = new Frame();
-		
-		//Declaração de formatação de número
-		NumberFormat format = NumberFormat.getIntegerInstance();
-		format.setGroupingUsed(false);
-		NumberFormatter formatter = new NumberFormatter(format);
-		formatter.setMinimum(0);
-		formatter.setMaximum(9);
-		
-		JLabel lbNumero = new JLabel("Insira o número de conta: ");
-		JFormattedTextField txtNumero = new JFormattedTextField(formatter);
-		txtNumero.setColumns(1);
-		
-		JLabel lbDigito = new JLabel("Insira o seu dígito: ");
-		JFormattedTextField txtDigito = new JFormattedTextField(formatter);
-		txtDigito.setColumns(1);
-		
-		JLabel lbSenha = new JLabel("Insira a sua senha: ");
-		JPasswordField txtSenha = new JPasswordField();
-		
-		JLabel lbRepetirSenha = new JLabel("Repita a sua senha: ");
-		JPasswordField txtRepetirSenha = new JPasswordField();
-		
-		JPanel componentes = new JPanel();
-		
-		JLabel texto = new JLabel("Insira os seus dados");
-		JLabel linha = new JLabel(" ");
-		
-		componentes.add(texto);
-		componentes.add(linha);
-		componentes.add(lbNumero);
-		componentes.add(txtNumero);
-		componentes.add(lbDigito);
-		componentes.add(txtDigito);
-		componentes.add(lbSenha);
-		componentes.add(txtSenha);
-		componentes.add(lbRepetirSenha);
-		componentes.add(txtRepetirSenha);
-		
-		componentes.setLayout(new BoxLayout(componentes, BoxLayout.Y_AXIS));
-		
-		String senha1;
-		String senha2;
-		Object[] options = {"Voltar", "Abrir conta"};
-		int abrirconta = 5;
-		
-		
-		//Início da interface
-		while(abrirconta != 0) {
-			do {
-				Conta conta = new Conta();
-				abrirconta = JOptionPane.showOptionDialog(
-						frame,
-						componentes,
-						"Abrir conta",
-						JOptionPane.YES_NO_OPTION,
-						JOptionPane.INFORMATION_MESSAGE,
-						null,
-						options,
-						options[1]
-						);
-				
-				//Declarando as senhas como String, já que por padrão vem como char[]
-				senha1 = new String(txtSenha.getPassword());
-				senha2 = new String(txtRepetirSenha.getPassword());
-				if(abrirconta == 1) {
-					contas.add(conta);
-					conta.setNumero(Integer.parseInt(txtNumero.getText()));
-					conta.setDigito(txtDigito.getText());
-					conta.setSenha(senha1, senha2, 1);
-				}
-			} while(abrirconta == 1 && (!(txtDigito.getText().length() == 1) || !(txtDigito.getText().matches("^[0-9]*$")) || !(senha1.equals(senha2)) || !(senha1.matches("(?=^.{8,}$)(?=.*\\d)(?=.*[!@#$%^&*]+)(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$"))));
-			if(abrirconta == 1 && !(!(txtDigito.getText().length() == 1) || !(txtDigito.getText().matches("^[0-9]*$")) || !(senha1.equals(senha2)) || !(senha1.matches("(?=^.{8,}$)(?=.*\\d)(?=.*[!@#$%^&*]+)(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$")))) {
-				controleConta++;
-				JOptionPane.showMessageDialog(null, "Conta criada com sucesso!");
-			}
-		}
-	}//Validação de dados acima
 	
 	public static void registrar() {
 		//Declaração para interface
@@ -179,14 +97,14 @@ public class Principal {
 		componentes.add(lbEmprego);
 		componentes.add(txtEmprego);
 		
-		Object[] options= {"Voltar", "Registrar"};
+		Object[] options= {"Voltar", "Finalizar"};
 		int registro;
 		componentes.setLayout(new BoxLayout(componentes, BoxLayout.Y_AXIS));
 		
 		//Validação para evitar que a pessoa declare um cliente sem abrir conta antes
-		if(!contas.get(controleConta).getNumero().equals("-1")) {
 			//Início da interface
 			do {
+				Cliente cliente = new Cliente();
 				registro = JOptionPane.showOptionDialog(
 						frame,
 						componentes,
@@ -198,7 +116,7 @@ public class Principal {
 						options[1]
 					);
 				
-				if(registro == 1) {
+				if(registro == 1 && !(txtNome.getText().isEmpty() || txtCpf.getText().isEmpty() || !(txtCpf.getText().length() == 14) || !(txtDataNasc.getText().matches("\\d{2}/\\d{2}/\\d{4}")) || txtEndereco.getText().isEmpty() || txtTelefone.getText().isEmpty() || !(txtTelefone.getText().length() >= 16) || !(Integer.parseInt(txtCodigo.getText()) > 0) || !(Float.parseFloat(txtRendaMensal.getText()) > 0))) {
 					cliente.setNome(txtNome.getText());
 					cliente.setCpf(txtCpf.getText());
 					cliente.setDataNasc(txtDataNasc.getText());
@@ -206,23 +124,99 @@ public class Principal {
 					cliente.setTelefone(txtTelefone.getText());
 					cliente.setCodigo(Integer.parseInt(txtCodigo.getText()));
 					cliente.setRendaMensal(Float.parseFloat(txtRendaMensal.getText()));
+					contas.get(controle).setTitular(cliente);
+					controle++;
+					JOptionPane.showMessageDialog(null, "Cliente registrado com sucesso!");
+					clientes.add(cliente);
 				}
 				
 			} while(registro == 1 && (txtNome.getText().isEmpty() || txtCpf.getText().isEmpty() || !(txtCpf.getText().length() == 14) || !(txtDataNasc.getText().matches("\\d{2}/\\d{2}/\\d{4}")) || txtEndereco.getText().isEmpty() || txtTelefone.getText().isEmpty() || !(txtTelefone.getText().length() >= 16) || !(Integer.parseInt(txtCodigo.getText()) > 0) || !(Float.parseFloat(txtRendaMensal.getText()) > 0)));
-			//Validações de dados acima
-			
-			if(!(txtNome.getText().isEmpty() || txtCpf.getText().isEmpty() || !(txtCpf.getText().length() == 14) || !(txtDataNasc.getText().matches("\\d{2}/\\d{2}/\\d{4}")) || txtEndereco.getText().isEmpty() || txtTelefone.getText().isEmpty() || !(txtTelefone.getText().length() >= 16) || !(Integer.parseInt(txtCodigo.getText()) > 0) || !(Float.parseFloat(txtRendaMensal.getText()) > 0))) {
-				JOptionPane.showMessageDialog(null, "Cliente registrado com sucesso!");
-			}
-			
+			//Validações de dados acima		
 			//Vinculando o cliente à conta
-			//conta.setTitular(cliente);
-		} else {
-			JOptionPane.showMessageDialog(null, "Você precisa abrir uma conta primeiro!");
-			//Mensagem de erro
-		}
+			//
 	}
 	
+	public static void abrirConta() {
+		
+		//Declarações para a interface
+		Frame frame = new Frame();
+		
+		//Declaração de formatação de número
+		NumberFormat format = NumberFormat.getIntegerInstance();
+		format.setGroupingUsed(false);
+		NumberFormatter formatter = new NumberFormatter(format);
+		formatter.setMinimum(0);
+		formatter.setMaximum(9);
+		
+		JLabel lbNumero = new JLabel("Insira o número de conta: ");
+		JFormattedTextField txtNumero = new JFormattedTextField(formatter);
+		txtNumero.setColumns(1);
+		
+		JLabel lbDigito = new JLabel("Insira o seu dígito: ");
+		JFormattedTextField txtDigito = new JFormattedTextField(formatter);
+		txtDigito.setColumns(1);
+		
+		JLabel lbSenha = new JLabel("Insira a sua senha: ");
+		JPasswordField txtSenha = new JPasswordField();
+		
+		JLabel lbRepetirSenha = new JLabel("Repita a sua senha: ");
+		JPasswordField txtRepetirSenha = new JPasswordField();
+		
+		JPanel componentes = new JPanel();
+		
+		JLabel texto = new JLabel("Insira os seus dados");
+		JLabel linha = new JLabel(" ");
+		
+		componentes.add(texto);
+		componentes.add(linha);
+		componentes.add(lbNumero);
+		componentes.add(txtNumero);
+		componentes.add(lbDigito);
+		componentes.add(txtDigito);
+		componentes.add(lbSenha);
+		componentes.add(txtSenha);
+		componentes.add(lbRepetirSenha);
+		componentes.add(txtRepetirSenha);
+		
+		componentes.setLayout(new BoxLayout(componentes, BoxLayout.Y_AXIS));
+		
+		String senha1;
+		String senha2;
+		Object[] options = {"Voltar", "Continuar"};
+		int abrirconta = 5;
+		
+		
+		//Início da interface
+
+		do {
+			Conta conta = new Conta();
+			abrirconta = JOptionPane.showOptionDialog(
+					frame,
+					componentes,
+					"Abrir conta",
+					JOptionPane.YES_NO_OPTION,
+					JOptionPane.INFORMATION_MESSAGE,
+					null,
+					options,
+					options[1]
+					);
+			
+			//Declarando as senhas como String, já que por padrão vem como char[]
+			senha1 = new String(txtSenha.getPassword());
+			senha2 = new String(txtRepetirSenha.getPassword());
+			if(abrirconta == 1) {
+				contas.add(conta);
+				conta.setNumero(Integer.parseInt(txtNumero.getText()));
+				conta.setDigito(txtDigito.getText());
+				conta.setSenha(senha1, senha2, 1);
+			}
+		} while(abrirconta == 1 && (!(txtDigito.getText().length() == 1) || !(txtDigito.getText().matches("^[0-9]*$")) || !(senha1.equals(senha2)) || !(senha1.matches("(?=^.{8,}$)(?=.*\\d)(?=.*[!@#$%^&*]+)(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$"))));
+		if(abrirconta == 1 && !(!(txtDigito.getText().length() == 1) || !(txtDigito.getText().matches("^[0-9]*$")) || !(senha1.equals(senha2)) || !(senha1.matches("(?=^.{8,}$)(?=.*\\d)(?=.*[!@#$%^&*]+)(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$")))) {
+			JOptionPane.showMessageDialog(null, "Conta criada com sucesso!");
+			registrar();
+		}
+	}//Validação de dados acima
+
 	public static void depositar() {
 		Frame frame = new Frame();
 		
@@ -237,8 +231,8 @@ public class Principal {
 		Object[] options = {"Sair", "Depositar"};
 		
 		JPanel componentes = new JPanel();
-		JLabel texto = new JLabel("Saldo: R$" + contas.get(controleConta).getSaldo());
-		JLabel texto2 = new JLabel("Limite: R$" + contas.get(controleConta).getLimite());
+		JLabel texto = new JLabel("Saldo: R$" + contas.get(identificador).getSaldo());
+		JLabel texto2 = new JLabel("Limite: R$" + contas.get(identificador).getLimite());
 		JLabel linha = new JLabel(" ");
 		
 		componentes.add(texto);
@@ -253,7 +247,7 @@ public class Principal {
 		while(deposito != 0) {
 			do {
 				if (deposito != 3) {
-				    texto.setText("Saldo: R$" + contas.get(controleConta).getSaldo()); // Atualiza o texto do componente com o novo saldo
+				    texto.setText("Saldo: R$" + contas.get(identificador).getSaldo()); // Atualiza o texto do componente com o novo saldo
 				}
 				txtSaldo.setText("");
 				
@@ -272,7 +266,7 @@ public class Principal {
 					txtSaldo.setText("0");
 				}
 				if(deposito == 1) {
-					contas.get(controleConta).setSaldo(3, Double.parseDouble(txtSaldo.getText()));
+					contas.get(identificador).setSaldo(3, Double.parseDouble(txtSaldo.getText()));
 				}
 			} while(deposito == 1 && !(Double.parseDouble(txtSaldo.getText()) > 0));
 		}
@@ -281,8 +275,8 @@ public class Principal {
 	public static void sacar() {
 		Frame frame = new Frame();
 		
-		JLabel texto = new JLabel("Saldo: R$" + contas.get(controleConta).getSaldo());
-		JLabel texto2 = new JLabel("Limite: R$" + contas.get(controleConta).getLimite());
+		JLabel texto = new JLabel("Saldo: R$" + contas.get(identificador).getSaldo());
+		JLabel texto2 = new JLabel("Limite: R$" + contas.get(identificador).getLimite());
 		JLabel linha = new JLabel(" ");
 		JLabel lbSaque = new JLabel("Digite o quanto deseja sacar: ");
 		JTextField txtSaque = new JTextField();
@@ -318,8 +312,8 @@ public class Principal {
 				
 				if(saque == 1) {
 					contas.get(0).setSaldo(2, Double.parseDouble(txtSaque.getText()));
-					texto.setText("Saldo: R$" + contas.get(0).getSaldo());
-					texto2.setText("Limite: R$" + contas.get(0).getLimite());
+					texto.setText("Saldo: R$" + contas.get(identificador).getSaldo());
+					texto2.setText("Limite: R$" + contas.get(identificador).getLimite());
 				}
 				
 				
@@ -339,7 +333,7 @@ public class Principal {
 		while(escolher != 2) {
 			escolher = JOptionPane.showOptionDialog(
 					frame,
-					"Olá, " + cliente.getNome() + " (" + contas.get(controleConta).getNumero() + ")" + ". Seja bem-vindo!\nR$" + contas.get(controleConta).getSaldo() + "\nEscolha a função que deseja:\n",
+					"Olá, " + clientes.get(identificador).getNome() + " (" + contas.get(identificador).getNumero() + ")" + ". Seja bem-vindo!\nR$" + contas.get(identificador).getSaldo() + "\nEscolha a função que deseja:\n",
 					"Escolha",
 					JOptionPane.YES_NO_OPTION,
 					JOptionPane.INFORMATION_MESSAGE,
@@ -361,24 +355,36 @@ public class Principal {
 	}
 	
 	public static void login() {
-		
+		identificador = 0;
 		Frame frame = new Frame();
 		
-		JLabel lbSenha = new JLabel("Digite a sua senha para realizar o depósito: ");
+		JLabel lbCpf = new JLabel("Digite o seu CPF: ");
+		JFormattedTextField txtCpf = new JFormattedTextField();
+		//Declaração de máscara
+		MaskFormatter maskCpf;
+		try {
+			maskCpf = new MaskFormatter("###.###.###-##");
+			maskCpf.install(txtCpf);
+		} catch (ParseException e) {
+			
+		}
+		
+		JLabel lbSenha = new JLabel("Digite a sua senha: ");
 		JPasswordField txtSenha = new JPasswordField();
 		
 		JPanel componentes = new JPanel();
 		
+		componentes.add(lbCpf);
+		componentes.add(txtCpf);
 		componentes.add(lbSenha);
 		componentes.add(txtSenha);
 		componentes.setLayout(new BoxLayout(componentes, BoxLayout.Y_AXIS));
 		
 		Object[] options = {"Voltar", "Login"};
 		int login;
-		
 		String senha1;
-		
-		if(!contas.get(controleConta).getNumero().equals("-1") && cliente.getCodigo() != -1) {
+		boolean isLogin = false;
+		if(!contas.get(controle-1).getNumero().equals("-1") && clientes.get(controle-1).getCodigo() != -1) {
 			do {
 				login = JOptionPane.showOptionDialog(
 						frame,
@@ -392,17 +398,31 @@ public class Principal {
 				
 				senha1 = new String(txtSenha.getPassword());
 				
-				if(login == 1 && contas.get(controleConta).getTentativas() < 3 && !senha1.isEmpty()) {
-					if(contas.get(controleConta).checkSenha(senha1)) {
+				/*if(login == 1 && contas.get(controle-1).getTentativas() < 3 && !senha1.isEmpty()) {
+					if(contas.get(controle-1).checkSenha(senha1)) {
 						menu();
 					}
+				}*/
+				
+				for(Conta conta:contas) {
+					if(login == 1 && conta.getTentativas() < 3 && !senha1.isEmpty()) {
+						if(conta.checkLogin(senha1, txtCpf.getText())) {
+							JOptionPane.showMessageDialog(null, "\nLogin com sucesso!");
+							isLogin = true;
+							menu();
+							break;
+						} else {
+							identificador++;
+						}
+					}
 				}
-			} while(login == 1 && !(senha1.matches("(?=^.{8,}$)(?=.*\\d)(?=.*[!@#$%^&*]+)(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$")) && contas.get(controleConta).getTentativas() < 3);
-			
-			if(contas.get(controleConta).getTentativas() == 3) {
-				JOptionPane.showMessageDialog(null, "Excedeu o limite de tentativas!");
-				contas.get(controleConta).setTentativas(0);
-			}
+				
+				if(isLogin) {
+					break;
+				} else {
+					JOptionPane.showMessageDialog(null, "\nLogin incorreto!");
+				}
+			} while(login == 1 && !(senha1.matches("(?=^.{8,}$)(?=.*\\d)(?=.*[!@#$%^&*]+)(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$")));
 		} else {
 			JOptionPane.showMessageDialog(null, "Você precisa abrir uma conta e registrar cliente primeiro!");
 		}
@@ -410,9 +430,14 @@ public class Principal {
 	
 	public static void mostrarDados() {
 		String mensagem = "";
+		String mensagem2 = "";
 		
 		for(Conta conta: contas) {
-			mensagem += "Número: "+conta.getNumero()+"\nDígito: "+conta.getDigito()+"\nSenha: "+conta.getSenha()+"\nSaldo: R$"+conta.getSaldo() + "\n";
+			mensagem += "Número: "+conta.getNumero()+"\nDígito: "+conta.getDigito()+"\nSenha: "+conta.getSenha()+"\nSaldo: R$"+conta.getSaldo() + "\n\n";
+		}
+		
+		for(Cliente cliente:clientes) {
+			mensagem2 += "Nome: " + cliente.getNome() + "\nCPF: " + cliente.getCpf() + "\nData de nascimento: " + cliente.getDataNasc() + "\n\n";
 		}
 		
 		/*for(int i = 0; i<contas.size(); i++) {
@@ -420,12 +445,13 @@ public class Principal {
 		}*/
 		
 		JOptionPane.showMessageDialog(null, mensagem);
+		JOptionPane.showMessageDialog(null, mensagem2);
 	}
 	
 	public static void main(String[] args) {
 		Frame frame = new Frame();
 		
-		Object[] options = {"Abrir a conta", "Cadastrar o cliente", "Depositar/Sacar", "Mostrar dados cadastrados", "Sair"};
+		Object[] options = {"Abrir a conta", "Depositar/Sacar", "Mostrar dados cadastrados", "Sair"};
 		do {
 			int inicio = JOptionPane.showOptionDialog(
 					frame,
@@ -442,14 +468,12 @@ public class Principal {
 					abrirConta();
 				break;
 				case 1:
-					registrar();
-				break;
-				case 2:
 					login();
 				break;
-				case 3:
+				case 2:
 					mostrarDados();
-				case 4:
+				break;
+				case 3:
 					aberto = 0;
 					System.exit(0);
 				break;
